@@ -1,31 +1,70 @@
-import React from 'react';
+import React, {Component} from 'react';
 
-import AppHeader from '../app-header/app-header';
-import SearchPanel from '../search-panel/search-panel';
-import TodoList from '../todo-list/todo-list';
-import ItemStatusFilter from '../item-status-filter/item-status-filter';
+import AppHeader from '../app-header';
+import SearchPanel from '../search-panel';
+import TodoList from '../todo-list';
+import ItemStatusFilter from '../item-status-filter';
+import ItemAddForm from '../item-add-form';
 
 import './app.css';
 
-const App = () => {
+export default class App extends Component {
+    constructor() {
+        super();
 
-    const todoData = [
-        {label: 'Drink Coffee', id: 1},
-        {label: 'Make Awesome App', id: 2},
-        {label: 'Have a lunch', id: 3}
-    ];
+        this.maxId = 100;
 
-    return (
-        <div className="todo-app">
-            <AppHeader toDo={1} done={3}/>
-            <div className="top-panel d-flex">
-                <SearchPanel/>
-                <ItemStatusFilter/>
+        this.deleteItem = (id) => {
+            this.setState(({todoData}) => {
+                const idx = todoData.findIndex((el) => el.id === id);
+
+                const newArray = [
+                    ...todoData.slice(0, idx),
+                    ...todoData.slice(idx + 1)
+                ];
+
+                return {
+                    todoData: newArray
+                }
+            });
+        };
+
+        this.addItem = (text) => {
+            const newItem = {
+                label: text,
+                important: false,
+                id: this.maxId++
+            };
+
+            this.setState(({todoData}) => {
+                const newArr = [...todoData, newItem];
+
+                return {
+                    todoData: newArr
+                }
+            });
+        };
+
+        this.state = {
+            todoData: [
+                {label: 'Drink Coffee', id: 1},
+                {label: 'Make Awesome App', id: 2},
+                {label: 'Have a lunch', id: 3}
+            ]
+        };
+    };
+
+    render() {
+        return (
+            <div className="todo-app">
+                <AppHeader toDo={1} done={3}/>
+                <div className="top-panel d-flex">
+                    <SearchPanel/>
+                    <ItemStatusFilter/>
+                </div>
+                <TodoList todos={this.state.todoData} onDeleted={this.deleteItem}/>
+                <ItemAddForm onItemAdded={this.addItem}/>
             </div>
-
-            <TodoList todos={todoData}/>
-        </div>
-    );
+        );
+    };
 };
-
-export default App;
